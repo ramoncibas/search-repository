@@ -2,8 +2,9 @@ import React from 'react'
 import { Feather } from '@expo/vector-icons'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { NavigationContainer } from '@react-navigation/native'
-import Search from './pages/Search'
+
 import Main from './pages/Main'
+import Search from './pages/Search'
 
 
 const Tab = createBottomTabNavigator();
