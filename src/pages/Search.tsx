@@ -40,21 +40,21 @@ function CardUserProfile(props: any) {
   );
 }
 const Search = () => {
-  const [user, setUser] = useState("");
+  const [userName, setUser] = useState("");
   const [repositories, setRepos] = useState<Repository>();
   const [status, setStatus] = useState(Boolean);
 
   return (
     <SafeAreaView style={{ padding: 24 }}>
       <TextInput
-        onChangeText={(user) => setUser(user)}
+        onChangeText={(userName) => setUser(userName)}
         placeholder="Busque por perfils aqui!"
-        value={user}
+        value={userName}
         style={styles.inputRepos}
       />
       <Text
         onPress={() => {
-          fetch("https://api.github.com/users/" + user).then((response) => {
+          fetch("https://api.github.com/users/" + userName).then((response) => {
             response.json().then((data) => {
               setRepos(data);
             });
