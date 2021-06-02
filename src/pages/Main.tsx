@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { FlatList, View, Image, Text, StyleSheet, Linking } from "react-native";
+import { StyleSheet, View, Text, Modal, Button } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { TextInput } from "react-native-gesture-handler";
+import UserRepositoies from "./UserRepositories";
 
 interface Repository {
   name: string;
@@ -12,101 +14,97 @@ interface Repository {
   owner: { login: string; avatar_url: string };
 }
 
-const Main = (props: any) => {
+const Main = () => {
+  const [userName, setUser] = useState("");
   const [repositories, setRepos] = useState<Repository[]>([]);
-  console.log(props);
+  const [modalVisible, setModalVisible] = React.useState(true);
 
-  useEffect(() => {
-    fetch("https://api.github.com/users/" + props.user + "/repos").then(
-      (response) => {
-        response.json().then((data) => {
-          setRepos(data);
-        });
-      }
-    );
-  }, []);
+  console.log(repositories);
 
   return (
-    <FlatList
-      contentContainerStyle={{ padding: 24 }}
-      data={repositories}
-      keyExtractor={(repos) => repos.name}
-      ListHeaderComponent={() => {
-        return (
-          <View style={styles.flatHeader}>
-            <Text style={{ marginRight: 10, fontSize: 16 }}>
-              Veja seus repositorios no Github
+    <View>
+      { modalVisible == false && <UserRepositoies value={repositories} />}
+      <Modal
+        animationType={"slide"}
+        transparent={false}
+        visible={modalVisible}
+        style={styles.modalView}
+        onRequestClose={() => {
+          setModalVisible(!modalVisible);
+        }}
+      >
+        <View>
+          <View>
+            <Text style={styles.textModal}>
+              Veja seus <strong>Repositorios</strong> no
+              <Feather 
+                name="github" 
+                size={20} 
+                style={{ marginLeft: 5 }} 
+              />
             </Text>
-            <Feather name="github" size={20} />
           </View>
-        );
-      }}
-      renderItem={({ item: repos }) => (
-        <View style={styles.repository}>
-          <Image
-            style={styles.image}
-            source={{ uri: repos.owner.avatar_url }}
-          />
-          <Text style={styles.textRepos}>
-            Nome do usuario: {repos.owner.login}
-          </Text>
-          <Text style={styles.textRepos}>Path: {repos.full_name}</Text>
-          {repos.private == false ? (
-            <Text style={styles.textRepos}> Repositorio Publico </Text>
-          ) : (
-            <Text style={styles.textRepos}> Repositorio Privado </Text>
-          )}
 
-          <Text
-            style={styles.link}
-            onPress={() => Linking.openURL(repos.html_url)}
-          >
-            Repositório
-          </Text>
+          <TextInput
+            onChangeText={(userName) => setUser(userName)}
+            value={userName}
+            placeholder="Usuario no GitHub!"
+            style={styles.inputUserName}
+          />
+          { userName != "" && (
+            <Button
+              title="Enviar"
+              onPress={() => {
+                setModalVisible(!modalVisible);
+                fetch(
+                  "https://api.github.com/users/" + userName + "/repos"
+                ).then((response) => {
+                  response.json().then((data) => {
+                    setRepos(data);
+                  });
+                });
+              }}
+            />
+          )}
         </View>
-      )}
-    />
+      </Modal>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  flatHeader: {
-    width: "100%",
-    height: 100,
-    marginBottom: "2rem",
-    justifyContent: "center",
-    alignItems: "center",
-    flexDirection: "row",
-    borderBottomColor: "#000",
-    borderBottomWidth: 1,
-  },
-  repository: {
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 30,
-    backgroundColor: "#0d1117",
-    borderRadius: 10,
-    padding: 10,
-  },
-  image: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    marginRight: 16,
-  },
-  link: {
-    marginTop: 10,
-    padding: 10,
-    width: "50%",
-    borderRadius: 10,
+  modalView: {
+    width: "90%",
+    height: 500,
+    margin: "auto",
+    marginTop: 22,
     backgroundColor: "#20232a",
-    color: "#fff",
-    textAlign: "center",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
-  textRepos: {
-    marginTop: 10,
+  textModal: {
+    fontSize: 22,
     color: "#fff",
+  },
+  inputUserName: {
+    textAlign: "center",
+    padding: 5,
+    borderWidth: 1,
+    borderColor: "#c3c3c3",
+    borderRadius: 5,
+    marginTop: 10,
+    marginBottom: 10,
+    backgroundColor: "#fff",
   },
 });
 
