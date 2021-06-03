@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { StyleSheet, View, Text, Modal, Button } from "react-native";
+import React, { useState } from "react";
+import { StyleSheet, View, Text, Button, Modal, StatusBar } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { TextInput } from "react-native-gesture-handler";
-import UserRepositoies from "./UserRepositories";
+import ListUserRepositories from "./components/ListUserRepositories";
 
 interface Repository {
   name: string;
   full_name: string;
   private: boolean;
   html_url: string;
+  description: string;
 
   // User information
   owner: { login: string; avatar_url: string };
@@ -17,84 +18,65 @@ interface Repository {
 const Main = () => {
   const [userName, setUser] = useState("");
   const [repositories, setRepos] = useState<Repository[]>([]);
-  const [modalVisible, setModalVisible] = React.useState(true);
-
-  console.log(repositories);
+  const [modalVisible, setModalVisible] = useState(true);
 
   return (
-    <View>
-      { modalVisible == false && <UserRepositoies value={repositories} />}
+    <View style={{ flex: 1 }}>
       <Modal
         animationType={"slide"}
-        transparent={false}
+        transparent={true}
         visible={modalVisible}
         style={styles.modalView}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible);
-        }}
       >
         <View>
           <View>
             <Text style={styles.textModal}>
               Veja seus <strong>Repositorios</strong> no
-              <Feather 
-                name="github" 
-                size={20} 
-                style={{ marginLeft: 5 }} 
-              />
+              <Feather name="github" size={20} style={{ marginLeft: 5 }} />
             </Text>
-          </View>
 
-          <TextInput
-            onChangeText={(userName) => setUser(userName)}
-            value={userName}
-            placeholder="Usuario no GitHub!"
-            style={styles.inputUserName}
-          />
-          { userName != "" && (
-            <Button
-              title="Enviar"
-              onPress={() => {
-                setModalVisible(!modalVisible);
-                fetch(
-                  "https://api.github.com/users/" + userName + "/repos"
-                ).then((response) => {
-                  response.json().then((data) => {
-                    setRepos(data);
-                  });
-                });
-              }}
+            <TextInput
+              onChangeText={(userName) => setUser(userName)}
+              value={userName}
+              placeholder="Usuario no Github!"
+              style={styles.inputUserName}
             />
-          )}
+
+            {userName != "" && (
+              <Button
+                title="Buscar"
+                onPress={() => {
+                  setModalVisible(false);
+                  fetch("https://api.github.com/users/" + userName + "/repos")
+                  .then((response) => {
+                    response.json().then((data) => {
+                      setRepos(data);
+                    });
+                  });
+                }}
+              />
+            )}
+          </View>
         </View>
       </Modal>
+      {modalVisible != true && <ListUserRepositories value={repositories} />}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   modalView: {
-    width: "90%",
-    height: 500,
-    margin: "auto",
-    marginTop: 22,
+    width: "100%",
     backgroundColor: "#20232a",
-    borderRadius: 20,
-    padding: 35,
-    alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
+    padding: 35,
+    marginTop: StatusBar.currentHeight || 0,
+    borderWidth: 0,
   },
   textModal: {
     fontSize: 22,
     color: "#fff",
+    textAlign: "center",
   },
   inputUserName: {
     textAlign: "center",
