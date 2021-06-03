@@ -1,16 +1,8 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  SafeAreaView,
-  Text,
-  TextInput,
-  Button,
-  StyleSheet,
-  Image,
-  Linking,
-} from "react-native";
+import { View, SafeAreaView, Text, TextInput, StyleSheet, Image, Linking } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
+// Data from github Api
 interface Repository {
   name: string;
   avatar_url: string;
@@ -39,6 +31,7 @@ function CardUserProfile(props: any) {
     </View>
   );
 }
+
 const Search = () => {
   const [userName, setUser] = useState("");
   const [repositories, setRepos] = useState<Repository>();
@@ -54,7 +47,8 @@ const Search = () => {
       />
       <Text
         onPress={() => {
-          fetch("https://api.github.com/users/" + userName).then((response) => {
+          fetch("https://api.github.com/users/" + userName)
+          .then((response) => {
             response.json().then((data) => {
               setRepos(data);
             });
@@ -63,11 +57,13 @@ const Search = () => {
         }}
         style={[styles.btn, styles.search]}
       >
-        {" "}
-        Presquisar{" "}
+        Presquisar
       </Text>
-
-      {status == true && <CardUserProfile {...repositories} />}
+      
+      {
+        // Passing data to the component CardUserProfile
+        status == true && <CardUserProfile {...repositories} />
+      }
     </SafeAreaView>
   );
 };
